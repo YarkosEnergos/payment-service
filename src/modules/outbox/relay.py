@@ -34,8 +34,12 @@ class OutboxRelay:
             for message in messages:
                 try:
                     await self.publisher.publish(message)
-                except Exception:
-                    logger.exception("Failed to publish outbox message %s", message.id)
+                except Exception as error:
+                    logger.warning(
+                        "Failed to publish outbox message %s, will retry: %r",
+                        message.id,
+                        error,
+                    )
                     break
                 published.append(message.id)
 
