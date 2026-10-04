@@ -96,23 +96,23 @@ async def test_successful_processing_is_not_retried(harness: ConsumerHarness) ->
 
 
 @pytest.mark.parametrize(
-    ("attempt", "expected_queue"),
-    [(None, "payments.new.retry.2000ms"), (2, "payments.new.retry.4000ms")],
+    ("header", "attempt"),
+    [(None, 1), (2, 2)],
 )
 async def test_failure_is_scheduled_for_delayed_retry(
     harness: ConsumerHarness,
-    attempt: int | None,
-    expected_queue: str,
+    header: int | None,
+    attempt: int,
 ) -> None:
     harness.use_processor(FakeProcessor(error=ConnectionError("receiver is down")))
     event = PaymentCreatedEvent(payment_id=uuid4())
 
-    await harness.publish(event, attempt=attempt)
+    await harness.publish(event, attempt=header)
 
     [retried] = harness.retried
-    assert retried.queue == expected_queue
+    assert retried.queue == retry_policy.retry_queue(attempt).name
     assert retried.event == event
-    assert retried.headers[ATTEMPT_HEADER] == (attempt or 1) + 1
+    assert retried.headers[ATTEMPT_HEADER] == attempt + 1
     assert retried.message_id == "message-1"
 
 

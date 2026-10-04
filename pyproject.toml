@@ -32,6 +32,7 @@ asyncio_default_fixture_loop_scope = "session"
 asyncio_default_test_loop_scope = "session"
 testpaths = ["tests"]
 markers = ["integration: tests that need Docker (testcontainers)"]
+filterwarnings = ["ignore::DeprecationWarning:testcontainers.*"]
 
 [tool.ruff]
 src = ["src"]
@@ -53,7 +54,7 @@ max-complexity = 15
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402", "F401"]
-"tests/**" = ["ARG", "S101", "S311", "SLF001", "PLR2004"]
+"tests/**" = ["ARG", "S101", "S105", "S106", "S311", "SLF001", "PLR2004"]
 "src/infra/postgres/alembic/**" = ["INP001"]
 
 [tool.ruff.lint.isort]
